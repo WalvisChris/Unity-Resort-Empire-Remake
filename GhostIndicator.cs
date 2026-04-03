@@ -1,15 +1,23 @@
-using JetBrains.Annotations;
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GhostIndicator : MonoBehaviour
 {
-    private List<Material> _materials = new List<Material>();
+    // --- SCOPE ---
+    // Ghost creating
+    // Ghost tile validation
+    // Ghost movement
+    // Prefab placing
+    // Ghost deletion
 
-    public Vector2Int currentTile;
+    private List<Material> materials = new List<Material>();
 
-    public BuildingType selectedBuilding;
+    private Vector2Int currentTile;
+    List<Vector2Int> coveredTiles;
+
+    public BuildingType selectedBuildingType;
+
+    // --- BASIC ---
 
     void Awake()
     {
@@ -18,36 +26,96 @@ public class GhostIndicator : MonoBehaviour
         {
             foreach (Material m in r.materials)
             {
-                _materials.Add(m);
+                materials.Add(m);
             }
         }
     }
 
-    public bool isTileOccupied(Vector2Int position)
+    void Update()
     {
-        return GridManager.Instance.isTileOccupied(position);
+        if (Input.GetMouseButton(0) && !isAreaOccupied()) PlacePrefab();
+        if (Input.GetMouseButtonDown(1)) DestroyGhost();
+        MoveGhost();
     }
 
-    public void MoveToTile(Vector2Int position)
+    // --- GHOST LOGIC ---
+
+    private void MoveGhost()
     {
-        // color
-        foreach (Material m in _materials)
+        // caculate tile
+        Vector2Int tilePositionV2 = PlayerCamera.Instance.CursorCollisionToTile(currentTile);
+        Vector3 tilePositionV3 = TileToVector3(tilePositionV2);
+
+        // set tile values
+        currentTile = tilePositionV2;
+        coveredTiles = new List<Vector2Int>();
+        for (int x = 0; x < selectedBuildingType.size.x; x++)
         {
-            Color c = (isTileOccupied(position)) ? Color.red : Color.green;
+            for (int y = 0; y < selectedBuildingType.size.y; y++)
+            {
+                Vector2Int tile = new Vector2Int(currentTile.x + x, currentTile.y + y);
+                coveredTiles.Add(tile);
+            }
+        }
+
+        // out of bounds check
+        foreach (Vector2Int tile in coveredTiles)
+        {
+            if (GridManager.Instance.isTileOutsideGrid(tile))
+            {
+                return;
+            }
+        }
+
+        // color
+        foreach (Material m in materials)
+        {
+            UnityEngine.Color c = isAreaOccupied() ? UnityEngine.Color.red : UnityEngine.Color.green;
             c.a = 0.7f;
             m.color = c;
         }
 
-        // position
-        transform.position = TileToVector3(position);
-        currentTile = position;
+        // move ghost
+        transform.position = tilePositionV3;
     }
 
-    public void PlacePrefab(BuildingType building, Vector2Int tile)
+    private void DestroyGhost()
     {
-        Vector3 position = TileToVector3(tile);
-        Instantiate(building.prefab, position, Quaternion.identity);
-        GridManager.Instance.claimTile(currentTile); // TODO: footprint
+        Destroy(gameObject);
+    }
+
+    private void PlacePrefab()
+    {
+        // instantiate prefab
+        Vector3 tilePositionV3 = TileToVector3(currentTile);
+        Instantiate(selectedBuildingType.prefab, tilePositionV3, Quaternion.identity);
+
+        // claim all necessary tiles
+        foreach (Vector2Int tile in coveredTiles)
+        {
+            GridManager.Instance.claimTile(tile, selectedBuildingType);
+        }
+    }
+
+    // --- UTILITIES ---
+
+    public bool isTileOccupied(Vector2Int position)
+    {
+        return GridManager.Instance.isTileOccupied(position, selectedBuildingType.canPlaceOnGrass);
+    }
+
+    private bool isAreaOccupied()
+    {
+        bool flag = false;
+        foreach (Vector2Int tile in coveredTiles)
+        {
+            if (isTileOccupied(tile))
+            {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
     }
 
     private Vector3 TileToVector3(Vector2Int tile)

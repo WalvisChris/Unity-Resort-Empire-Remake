@@ -1,22 +1,16 @@
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class PlayerCamera : MonoBehaviour
 {
+    // --- SCOPE ---
+    // Camera movement
+    // Cursor grid collision
+
     [Header("Movement")]
     public float movementSpeed = 10f;
     public float mouseRange = 100f;
     public LayerMask floorLayer;
-
-    [Header("Ghost")]
-    public Material ghostMaterial;
-    private BuildingType selectedBuilding;
-    private GameObject ghostInstance;
-    private GhostIndicator ghostScript;
 
     public static PlayerCamera Instance;
 
@@ -27,72 +21,7 @@ public class PlayerCamera : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(1) && ghostInstance != null) DestroyGhost();
-
-        if (Input.GetMouseButtonDown(0) && ghostInstance != null && ghostScript != null)
-        {
-            // ignore UI
-            if (EventSystem.current.IsPointerOverGameObject()) return;
-
-            Vector2Int currentTile = ghostScript.currentTile;
-
-            if (!ghostScript.isTileOccupied(ghostScript.currentTile))
-            {
-                ghostScript.PlacePrefab(selectedBuilding, currentTile);
-            }
-        }
-
-        if (ghostInstance != null) MoveGhost();
-
         MoveCamera();
-    }
-
-    public void CreateGhost(BuildingType building)
-    {
-        if (ghostInstance != null) return; // prevent multiple ghosts
-
-        this.selectedBuilding = building;
-        this.ghostInstance = Instantiate(building.prefab);
-
-        Renderer[] renderers = ghostInstance.GetComponentsInChildren<Renderer>();
-        foreach (Renderer r in renderers)
-        {
-            Material[] mats = new Material[r.materials.Length];
-            for (int i = 0; i < mats.Length; i++)
-            {
-                mats[i] = ghostMaterial;
-            }
-            r.materials = mats;
-        }
-
-        this.ghostScript = ghostInstance.AddComponent<GhostIndicator>();
-    }
-
-    private void DestroyGhost()
-    {
-        Destroy(ghostInstance);
-        this.ghostInstance = null;
-        this.selectedBuilding = null;
-        this.ghostScript = null;
-    }
-
-    private void MoveGhost()
-    {
-        if (ghostScript == null) return;
-        Vector2Int fallback = ghostScript.currentTile;
-        ghostScript.MoveToTile(CursorCollisionToTile(fallback));
-    }
-
-    private Vector2Int CursorCollisionToTile(Vector2Int fallback)
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, mouseRange, floorLayer)) {
-            Vector2Int tilePosition = new Vector2Int(Mathf.FloorToInt(hit.point.x), Mathf.FloorToInt(hit.point.z));
-            return tilePosition;
-        }
-        return fallback;
     }
 
     private void MoveCamera()
@@ -104,5 +33,18 @@ public class PlayerCamera : MonoBehaviour
         if (Keyboard.current.aKey.isPressed) move += new Vector3(-1f, 0f, 1f);
         if (Keyboard.current.dKey.isPressed) move += new Vector3(1f, 0f, -1f);
         transform.position += move.normalized * movementSpeed * Time.deltaTime;
+    }
+
+    public Vector2Int CursorCollisionToTile(Vector2Int fallback)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, mouseRange, floorLayer))
+        {
+            Vector2Int tilePosition = new Vector2Int(Mathf.FloorToInt(hit.point.x), Mathf.FloorToInt(hit.point.z));
+            return tilePosition;
+        }
+        return fallback;
     }
 }

@@ -7,5 +7,6 @@ public class BuildingType : ScriptableObject
     public string buildingName;
     public GameObject prefab;
     public bool canPlaceOnGrass;
-    // isGrass
+    public bool isGrass;
+    public bool isWalkable;
 }
