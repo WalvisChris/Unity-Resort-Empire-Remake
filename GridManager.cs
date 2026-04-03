@@ -23,7 +23,7 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < COLS_MAX; y++)
             {
-                _grid[x, y] = new Tile(false, false);
+                _grid[x, y] = new Tile(false, false, false);
             }
         }
     }

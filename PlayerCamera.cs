@@ -1,6 +1,7 @@
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
@@ -11,39 +12,33 @@ public class PlayerCamera : MonoBehaviour
     public float mouseRange = 100f;
     public LayerMask floorLayer;
 
-
-    [Header("BuildingTypes")]
-    public BuildingType tileBuilding;
-    public BuildingType houseBuilding;
-    public BuildingType icecreamBuilding;
-
     [Header("Ghost")]
     public Material ghostMaterial;
     private BuildingType selectedBuilding;
     private GameObject ghostInstance;
     private GhostIndicator ghostScript;
 
+    public static PlayerCamera Instance;
+
+    void Awake()
+    {
+        if (Instance == null || Instance != this) Instance = this;
+    }
+
     void Update()
-    { 
-        if (Input.GetMouseButtonDown(1)) {
-            if (ghostInstance == null) {
-                CreateGhost();
-            } else
-            {
-                DestroyGhost();
-            }
-        }
+    {
+        if (Input.GetMouseButtonDown(1) && ghostInstance != null) DestroyGhost();
 
-        if (Input.GetMouseButtonDown(0) && ghostInstance != null)
+        if (Input.GetMouseButtonDown(0) && ghostInstance != null && ghostScript != null)
         {
-            if (ghostScript != null)
-            {
-                Vector2Int currentTile = ghostScript.currentTile;
+            // ignore UI
+            if (EventSystem.current.IsPointerOverGameObject()) return;
 
-                if (!ghostScript.isTileOccupied(ghostScript.currentTile))
-                {
-                    ghostScript.PlacePrefab(selectedBuilding, currentTile);
-                }
+            Vector2Int currentTile = ghostScript.currentTile;
+
+            if (!ghostScript.isTileOccupied(ghostScript.currentTile))
+            {
+                ghostScript.PlacePrefab(selectedBuilding, currentTile);
             }
         }
 
@@ -52,10 +47,12 @@ public class PlayerCamera : MonoBehaviour
         MoveCamera();
     }
 
-    private void CreateGhost()
+    public void CreateGhost(BuildingType building)
     {
-        selectedBuilding = houseBuilding; // TODO: hardcoded for now
-        ghostInstance = Instantiate(selectedBuilding.prefab);
+        if (ghostInstance != null) return; // prevent multiple ghosts
+
+        this.selectedBuilding = building;
+        this.ghostInstance = Instantiate(building.prefab);
 
         Renderer[] renderers = ghostInstance.GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
@@ -68,15 +65,15 @@ public class PlayerCamera : MonoBehaviour
             r.materials = mats;
         }
 
-        ghostScript = ghostInstance.AddComponent<GhostIndicator>();
+        this.ghostScript = ghostInstance.AddComponent<GhostIndicator>();
     }
 
     private void DestroyGhost()
     {
         Destroy(ghostInstance);
-        ghostInstance = null;
-        selectedBuilding = null;
-        ghostScript = null;
+        this.ghostInstance = null;
+        this.selectedBuilding = null;
+        this.ghostScript = null;
     }
 
     private void MoveGhost()

@@ -6,4 +6,6 @@ public class BuildingType : ScriptableObject
     public Vector2Int size;
     public string buildingName;
     public GameObject prefab;
+    public bool canPlaceOnGrass;
+    // isGrass
 }
