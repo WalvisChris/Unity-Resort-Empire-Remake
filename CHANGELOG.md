@@ -2,6 +2,7 @@
 ![v0.3](images/alpha-v0.3.PNG)  
 - Added `GameManager.cs` to handle main/general game events:  
     - Added balance and added costs to structures.  
+    - Added the destroy mode.  
 - Prevent structures from being placed when mouse is on the UI.  
 - refractored `building` to `structure` for the whole project.  
 - Added UI elements with logic in `HUDManager`:
