@@ -10,7 +10,7 @@ public class PlayerCamera : MonoBehaviour
     [Header("Movement")]
     public float movementSpeed = 10f;
     public float mouseRange = 100f;
-    public LayerMask floorLayer;
+    public LayerMask gridLayer;
 
     public static PlayerCamera Instance;
 
@@ -40,11 +40,23 @@ public class PlayerCamera : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, mouseRange, floorLayer))
+        if (Physics.Raycast(ray, out hit, mouseRange, gridLayer))
         {
             Vector2Int tilePosition = new Vector2Int(Mathf.FloorToInt(hit.point.x), Mathf.FloorToInt(hit.point.z));
             return tilePosition;
         }
-        return fallback;
+        return fallback; // TODO: get rid of fallback
+    }
+
+    public GameObject CursorCollisionToObjectWithLayer(LayerMask layer)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, mouseRange, layer))
+        {
+            return hit.collider.gameObject;
+        }
+        return null;
     }
 }

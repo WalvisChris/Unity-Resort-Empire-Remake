@@ -40,7 +40,7 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < COLS_MAX; y++)
             {
                 bool occupied = lobbyTiles.Any(pos => pos.x == x && pos.y == y);
-                _grid[x, y] = new Tile(occupied, false, false);
+                _grid[x, y] = new Tile(occupied, false, false, false, false);
             }
         }
     }
@@ -55,12 +55,13 @@ public class GridManager : MonoBehaviour
         return position.x < 0 || position.x >= ROWS_MAX || position.y < 0 || position.y >= COLS_MAX;
     }
 
-    public void claimTile(Vector2Int position, BuildingType b)
+    public void claimTile(Vector2Int position, StructureType s)
     {
         if (_grid[position.x, position.y].isOccupied) Debug.LogWarning($"Tile at {position} is already occupied!");
         _grid[position.x, position.y].isOccupied = true;
-        _grid[position.x, position.y].isWalkable = b.isWalkable;
-        _grid[position.x, position.y].isGrass = b.isGrass;
+        _grid[position.x, position.y].isWalkable = s.isWalkable;
+        _grid[position.x, position.y].isGrass = s.isGrass;
+        _grid[position.x, position.y].isWater = s.isWater;
     }
 
     public void freeTile(Vector2Int position)

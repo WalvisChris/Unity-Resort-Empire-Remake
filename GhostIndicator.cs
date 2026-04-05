@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class GhostIndicator : MonoBehaviour
 {
@@ -13,9 +14,9 @@ public class GhostIndicator : MonoBehaviour
     private List<Material> materials = new List<Material>();
 
     private Vector2Int currentTile;
-    List<Vector2Int> coveredTiles;
+    private List<Vector2Int> coveredTiles;
 
-    public BuildingType selectedBuildingType;
+    public StructureType selectedStructureType;
 
     // --- BASIC ---
 
@@ -33,7 +34,7 @@ public class GhostIndicator : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButton(0) && !isAreaOccupied()) PlacePrefab();
+        if (Input.GetMouseButton(0) && !isAreaOccupied() && !EventSystem.current.IsPointerOverGameObject()) PlacePrefab();
         if (Input.GetMouseButtonDown(1)) DestroyGhost();
         MoveGhost();
     }
@@ -49,9 +50,9 @@ public class GhostIndicator : MonoBehaviour
         // set tile values
         currentTile = tilePositionV2;
         coveredTiles = new List<Vector2Int>();
-        for (int x = 0; x < selectedBuildingType.size.x; x++)
+        for (int x = 0; x < selectedStructureType.size.x; x++)
         {
-            for (int y = 0; y < selectedBuildingType.size.y; y++)
+            for (int y = 0; y < selectedStructureType.size.y; y++)
             {
                 Vector2Int tile = new Vector2Int(currentTile.x + x, currentTile.y + y);
                 coveredTiles.Add(tile);
@@ -86,22 +87,44 @@ public class GhostIndicator : MonoBehaviour
 
     private void PlacePrefab()
     {
+        if (GameManager.instance.balance < selectedStructureType.price) return;
+
         // instantiate prefab
         Vector3 tilePositionV3 = TileToVector3(currentTile);
-        Instantiate(selectedBuildingType.prefab, tilePositionV3, Quaternion.identity);
+        GameObject obj = Instantiate(selectedStructureType.prefab, tilePositionV3, Quaternion.identity);
+        obj.GetComponent<Structure>().structureType = selectedStructureType;
+        GameManager.instance.BalanceChange(-selectedStructureType.price);
 
         // claim all necessary tiles
         foreach (Vector2Int tile in coveredTiles)
         {
-            GridManager.Instance.claimTile(tile, selectedBuildingType);
+            GridManager.Instance.claimTile(tile, selectedStructureType);
         }
+
+        // update statistics
+        switch (selectedStructureType.category)
+        {
+            case StructureType.BuildingCategory.Janitor:
+                GameManager.instance.janitorCount++;
+                break;
+            case StructureType.BuildingCategory.Room:
+                GameManager.instance.roomCount++;
+                break;
+            case StructureType.BuildingCategory.Plant:
+                GameManager.instance.plantCount++;
+                break;
+            case StructureType.BuildingCategory.Facility:
+                GameManager.instance.facilityCount++;
+                break;
+        }
+        HUDManager.instance.UpdateStatistics();
     }
 
     // --- UTILITIES ---
 
     public bool isTileOccupied(Vector2Int position)
     {
-        return GridManager.Instance.isTileOccupied(position, selectedBuildingType.canPlaceOnGrass);
+        return GridManager.Instance.isTileOccupied(position, selectedStructureType.canPlaceOnGrass);
     }
 
     private bool isAreaOccupied()
