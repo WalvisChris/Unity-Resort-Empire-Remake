@@ -13,6 +13,7 @@
 - Added `isWater` and `isInteractable` properties to `Tile.cs`.  
 
 # [4-4-2026] Alpha Version 0.2  
+![v0.2](images/alpha-v0.2.PNG)  
 - Added `isWalkable` property to structures.  
 - Removed unused libraries.  
 - Hardcoded lobby as occupied tiles.  
@@ -23,13 +24,12 @@
     - Sauna.  
     - Tree (Palm).  
     - Tree (Pine).  
-![v0.2](images/alpha-v0.2.PNG)    
 
 # [3-4-2026] Alpha Version 0.1  
+![v0.1](images/alpha-v0.1.png)  
 - Created `GhostIndicator.cs` script to handle ghost indicator.  
 - Added grass tile:  
     - Added `isGrass` and `canPlaceOnGrass` properties.  
-![v0.1](images/alpha-v0.1.png)  
 
 # [2-4-2026] Alpha Version 0.0  
 - Initial version, readme & screenshot.  
