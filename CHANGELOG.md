@@ -1,6 +1,7 @@
 # [5-4-2026] Alpha Version 0.3  
 ![v0.3](images/alpha-v0.3.PNG)  
-- Added `GameManager.cs` to handle main/general game events.  
+- Added `GameManager.cs` to handle main/general game events:  
+    - Added balance and added costs to structures.  
 - Prevent structures from being placed when mouse is on the UI.  
 - refractored `building` to `structure` for the whole project.  
 - Added UI elements with logic in `HUDManager`:
