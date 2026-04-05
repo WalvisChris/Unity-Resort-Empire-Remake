@@ -34,4 +34,4 @@
     - Added `isGrass` and `canPlaceOnGrass` properties.  
 
 # [2-4-2026] Alpha Version 0.0  
-- Initial version, readme & screenshot.  
+- Initial version & readme.  
