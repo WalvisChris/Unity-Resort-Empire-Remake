@@ -6,9 +6,9 @@
 - Prevent structures from being placed when mouse is on the UI.  
 - refractored `building` to `structure` for the whole project.  
 - Added UI elements with logic in `HUDManager`:
-    - Top Bar: statistics.  
+    - Top Bar: profile and statistics.  
     - Left Bar: menus.  
-    - Bottom Bar: data and quests.  
+    - Bottom Bar: statistics and quests.  
     - `PanelSlider.cs`: structure menu animations.  
 - Added Cursor collision with objects to `PlayerCamera.cs` to make structures clickable.  
 - Added `Structures.cs` as an universal scripts to house the data for each structure instance.  
