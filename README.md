@@ -1,6 +1,9 @@
 # Unity Resort Empire Remake  
 remaking the flash game resort empire in 3D with unity.  
 
+### Alpha Version 0.4  
+![v0.4](images/alpha-v0.4.PNG)  
+
 ### Alpha Version 0.3  
 ![v0.3](images/alpha-v0.3.PNG)  
 

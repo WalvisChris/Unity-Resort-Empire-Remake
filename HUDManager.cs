@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,6 +36,11 @@ public class HUDManager : MonoBehaviour
     public float timeElapsed = 0f;
     public float timeMultiplier = 0.1f;
 
+    // cursor support
+    [Header("Cursor Indicators")]
+    public GameObject destroyModePrefab;
+    private GameObject destroyModeIndicator = null;
+
     void Awake()
     {
         if (instance == null || instance != this) instance = this;
@@ -60,6 +66,9 @@ public class HUDManager : MonoBehaviour
         {
             clockImage.sprite = clock_night;
         }
+
+        // move cursor indicator with mouse
+        if (destroyModeIndicator != null) destroyModeIndicator.transform.position = Input.mousePosition + new Vector3(40f, 0f, 40f);
     }
 
     public void Btn_TimeSpeed(float multiplier)
@@ -77,8 +86,16 @@ public class HUDManager : MonoBehaviour
 
     public void Btn_Destroy()
     {
-        // TODO: destroy mode indicator next to cursor
-        GameManager.instance.ToggleDestroyMode();
+        Debug.Log("void Btn_Destroy() called");
+        if (GameManager.instance.ToggleDestroyMode() && destroyModeIndicator == null)
+        {
+            Debug.Log("Destroy mode enabled, creating indicator");
+            destroyModeIndicator = Instantiate(destroyModePrefab, Vector3.zero, Quaternion.identity, transform);
+        } else if (destroyModeIndicator != null)
+        {
+            Debug.Log("Destroy mode disabled, destroying indicator");
+            Destroy(destroyModeIndicator);
+        }
     }
 
     public void UpdateStatistics()

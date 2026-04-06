@@ -9,8 +9,6 @@ public class GameManager : MonoBehaviour
     // - day/night cycle
     // - popularity
     // - balance
-    // ghost spawning (remove from HUDManager)
-    // AudioManager?
 
     public static GameManager instance;
 
@@ -30,9 +28,6 @@ public class GameManager : MonoBehaviour
     private bool destroyMode = false;
     public LayerMask destroyableLayer;
 
-    // debug
-    public TextMeshProUGUI debugText;
-
     void Awake()
     {
         if (instance == null || instance != this) instance = this;
@@ -42,7 +37,7 @@ public class GameManager : MonoBehaviour
     {
         if (destroyMode)
         {
-            if (Input.GetMouseButtonDown(1)) destroyMode = false;
+            if (Input.GetMouseButtonDown(1)) HUDManager.instance.Btn_Destroy();
             if (Input.GetMouseButton(0))
             {
                 GameObject obj = PlayerCamera.Instance.CursorCollisionToObjectWithLayer(destroyableLayer);
@@ -50,8 +45,6 @@ public class GameManager : MonoBehaviour
                 if (obj != null) Destroy(obj);
             }
         }
-        // debug
-        debugText.text = destroyMode ? "Destroy Mode: ON" : "Destroy Mode: OFF";
     }
 
     public void CreateGhost(StructureType s)
@@ -80,8 +73,11 @@ public class GameManager : MonoBehaviour
         ghostScript.selectedStructureType= s;
     }
 
-    public void ToggleDestroyMode() => destroyMode = !destroyMode;
-
+    public bool ToggleDestroyMode()
+    {
+        destroyMode = !destroyMode;
+        return destroyMode;
+    }
     public void BalanceChange(int amount)
     {
         balance += amount;

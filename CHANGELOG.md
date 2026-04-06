@@ -1,3 +1,12 @@
+# [6-4-2026] Alpha Version 0.4  
+![v0.4](images/alpha-v0.4.PNG)  
+- Added structures: Sand, Bamboo.  
+- Added CursorDestroyMode indicator.  
+- Added music:  
+    - Added functionality to the music slider.  
+    - Added `AudioManager.cs`.  
+    - fixed side panel sliding positions.  
+
 # [5-4-2026] Alpha Version 0.3  
 ![v0.3](images/alpha-v0.3.PNG)  
 - Added `GameManager.cs` to handle main/general game events:  
